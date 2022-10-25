@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { debounceTime } from 'rxjs';
+
+
 import {ServService} from '../app/serv.service';
 
 @Component({
@@ -27,9 +30,18 @@ export class AppComponent implements OnInit {
     this.formGroup = this.fb.group({
       'employee' : ['']
     })
-    this.formGroup.get('employee').valueChanges.subscribe(response => {
+    this.formGroup.get('employee').valueChanges
+      .pipe(debounceTime(1000))
+      .subscribe(response => {
       console.log('data is ', response);
-      this.filterData(response);
+      if (response && response.length > 2)  {
+        this.filterData(response);
+      }
+      else {
+        this.filteredOptions = [];
+      }
+
+
     })
   }
 
@@ -42,10 +54,10 @@ export class AppComponent implements OnInit {
   getNames(){
     this.service.getData().subscribe(response => {
       this.options = response;
-      this.filteredOptions = response;
+      //this.filteredOptions = response;
     })
   }
 
 
-  
+
 }
